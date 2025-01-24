@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Scanner with Camera Switch</title>
+    <title>QR Code Scanner</title>
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
     <style>
         body {
@@ -15,10 +15,6 @@
             min-height: 100vh;
             margin: 0;
             background-color: #f4f4f9;
-        }
-
-        h1 {
-            color: #333;
         }
 
         #qrScanner {
@@ -34,16 +30,6 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        #scannedResult {
-            color: #007BFF;
-            font-weight: bold;
-        }
-
-        p {
-            font-size: 16px;
-            color: #555;
-        }
-
         button {
             background-color: #007BFF;
             color: white;
@@ -53,13 +39,11 @@
             border-radius: 5px;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
             margin: 5px;
         }
 
         button:hover {
             background-color: #0056b3;
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
         }
     </style>
 </head>
@@ -73,54 +57,42 @@
     <script>
         let qrScanner;
 
-        // Start the QR Scanner
         function startQRScanner() {
             const scannerElement = document.getElementById("qrScanner");
             const startButton = document.getElementById("startCamera");
             const stopButton = document.getElementById("stopCamera");
 
-            // Initialize the QR Scanner
             qrScanner = new Html5Qrcode("qrScanner");
 
             qrScanner.start(
-                { facingMode: "environment" }, // Rear camera
-                {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 }, // Scanning area size
-                },
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
                 (decodedText) => {
                     document.getElementById("scannedResult").textContent = decodedText;
-
-                    // Optional: Stop scanner after successful scan
-                    // qrScanner.stop().catch((err) => console.error(err));
                 },
                 (errorMessage) => {
-                    console.warn(errorMessage);
+                    console.warn("Scanning error:", errorMessage);
                 }
             ).then(() => {
-                // Update button states
                 startButton.disabled = true;
                 stopButton.disabled = false;
             }).catch((err) => {
-                console.error("Unable to start QR scanner:", err);
-                alert("Error accessing the camera. Please check permissions.");
+                console.error("Failed to start scanner:", err);
+                alert("Camera initialization failed. Please check permissions and try again.");
             });
         }
 
-        // Stop the QR Scanner
         function stopQRScanner() {
             const startButton = document.getElementById("startCamera");
             const stopButton = document.getElementById("stopCamera");
 
             if (qrScanner) {
                 qrScanner.stop().then(() => {
-                    // Clear the scanner UI
                     document.getElementById("qrScanner").innerHTML = "";
-                    // Update button states
                     startButton.disabled = false;
                     stopButton.disabled = true;
                 }).catch((err) => {
-                    console.error("Error stopping QR scanner:", err);
+                    console.error("Failed to stop scanner:", err);
                 });
             }
         }
