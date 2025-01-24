@@ -11,7 +11,7 @@
             box-sizing: border-box;
         }
 
-        body {
+        body, .scanner-cont {
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
@@ -22,6 +22,15 @@
             overflow: hidden;
         }
 
+        .scanner-cont{
+            width: 90%;
+            height: 300px;
+            overflow: hidden;
+            /* background-color: #007BFF; */
+            position: relative;
+
+        }
+
         h1 {
             font-size: 36px;
             color: #007BFF;
@@ -29,8 +38,9 @@
         }
 
         #video {
-            width: 90%;
-            max-width: 400px;
+            width: 100%;
+            /* max-width: 400px; */
+            height: 300px !important;
             height: auto;
             border: 2px solid #007BFF;
             border-radius: 10px;
@@ -43,10 +53,13 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80%;
-            height: 80%;
-            border: 3px dashed #007BFF;
+            width: 90%;
+            height: 2px;
+            /* border:0px solid #007BFF; */
+            background-color: #007BFF;
+            box-shadow: 0px 0px 12px #007bff;
             border-radius: 5px;
+            object-fit: fill;
             animation: laserScanAnimation 2s infinite;
         }
 
@@ -82,8 +95,8 @@
         }
 
         #qrImage {
-            width: 200px;
-            height: 200px;
+            width: 300px;
+            height: 300px;
             border-radius: 10px;
             margin-top: 15px;
         }
@@ -100,9 +113,11 @@
 </head>
 <body>
     <h1>QR Code Scanner</h1>
+    <div class="scanner-cont">
     <video id="video" autoplay></video>
     <canvas id="canvas"></canvas>
     <div class="scanner-overlay"></div>
+</div>
 
     <div id="decodedResult">
         <span>Decoded QR Code:</span>
