@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Scanner</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -12,81 +18,108 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            margin: 0;
             background-color: #f4f4f9;
+            overflow: hidden;
         }
 
         h1 {
+            font-size: 36px;
             color: #007BFF;
+            margin-bottom: 20px;
         }
 
         #video {
-            width: 300px;
+            width: 90%;
+            max-width: 400px;
             height: auto;
             border: 2px solid #007BFF;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             background: #000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
         .scanner-overlay {
             position: absolute;
-            border: 2px dashed #007BFF;
-            width: 300px;
-            height: 300px;
-            animation: scanAnimation 2s infinite;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            border: 3px dashed #007BFF;
+            border-radius: 5px;
+            animation: laserScanAnimation 2s infinite;
         }
 
-        @keyframes scanAnimation {
+        @keyframes laserScanAnimation {
             0% {
-                top: 0;
-                opacity: 0.5;
+                top: -10%;
+                opacity: 0.2;
             }
             50% {
                 top: 50%;
                 opacity: 1;
             }
             100% {
-                top: 100%;
-                opacity: 0.5;
+                top: 110%;
+                opacity: 0.2;
             }
         }
 
-        p {
-            font-size: 18px;
-            margin-top: 10px;
-        }
-
         #decodedResult {
+            font-size: 20px;
             color: #28a745;
             font-weight: bold;
+            margin-top: 20px;
+            text-align: center;
+            display: none; /* Hidden initially */
+        }
+
+        #decodedResult span {
+            display: block;
+            margin-top: 10px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        #qrImage {
+            width: 200px;
+            height: 200px;
+            border-radius: 10px;
+            margin-top: 15px;
         }
 
         canvas {
-            display: none; /* Hidden canvas for capturing video frames */
+            display: none;
         }
 
         audio {
             display: none;
         }
+
     </style>
 </head>
 <body>
     <h1>QR Code Scanner</h1>
     <video id="video" autoplay></video>
     <canvas id="canvas"></canvas>
-    <p><strong>Decoded QR Code:</strong> <span id="decodedResult">None</span></p>
-
     <div class="scanner-overlay"></div>
 
+    <div id="decodedResult">
+        <span>Decoded QR Code:</span>
+        <div id="qrContent"></div>
+        <img id="qrImage" src="" alt="QR Code Image">
+    </div>
+
     <!-- Sound effect for when QR is decoded -->
-    <audio id="soundEffect" src="https://www.soundjay.com/button/beep-07.wav"></audio>
+    <audio id="soundEffect" src="beep-07.wav"></audio>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
     <script>
         let video = document.getElementById("video");
         let canvas = document.getElementById("canvas");
         let decodedResult = document.getElementById("decodedResult");
+        let qrContent = document.getElementById("qrContent");
+        let qrImage = document.getElementById("qrImage");
         let soundEffect = document.getElementById("soundEffect");
         let cameraStream = null;
         let intervalId = null;
@@ -125,9 +158,9 @@
             const code = jsQR(imageData.data, imageData.width, imageData.height);
 
             if (code) {
-                decodedResult.textContent = code.data;
-                soundEffect.play();  // Play sound when QR is decoded
-                stopCamera();        // Stop the camera after successful scan
+                // Stop the camera and scanning once QR is found
+                stopCamera();
+                displayDecodedResult(code);
             }
         }
 
@@ -142,6 +175,14 @@
                 clearInterval(intervalId);
                 intervalId = null;
             }
+        }
+
+        // Display the decoded QR code and its content
+        function displayDecodedResult(code) {
+            qrContent.textContent = code.data; // Display decoded data
+            qrImage.src = code.imageData;      // Show QR code image
+            soundEffect.play(); // Play sound when QR is decoded
+            decodedResult.style.display = 'block'; // Show the result
         }
     </script>
 </body>
