@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #qrScanner {
+            width: 300px;
+            height: 300px;
+            border: 2px dashed #007BFF;
+            border-radius: 10px;
+            margin: 20px 0;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #scannedResult {
+            color: #007BFF;
+            font-weight: bold;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Scanner</h1>
+    <div id="qrScanner"></div>
+    <p><strong>Scanned Text:</strong> <span id="scannedResult">None</span></p>
+    <button onclick="restartScanner()">Restart Scanner</button>
+
+    <script>
+        let qrScanner;
+
+        function startQRScanner() {
+            const scannerElement = document.getElementById("qrScanner");
+            qrScanner = new Html5Qrcode("qrScanner");
+
+            qrScanner.start(
+                { facingMode: "environment" }, // Rear camera
+                {
+                    fps: 10, // Frames per second
+                    qrbox: { width: 250, height: 250 }, // Scanning area size
+                },
+                (decodedText) => {
+                    document.getElementById("scannedResult").textContent = decodedText;
+
+                    // Stop the scanner after successful scan
+                    qrScanner.stop().catch((err) => console.error(err));
+                },
+                (errorMessage) => {
+                    console.warn(errorMessage);
+                }
+            ).catch((err) => {
+                console.error("Unable to start QR scanner:", err);
+            });
+        }
+
+        function restartScanner() {
+            if (qrScanner) {
+                qrScanner.stop().then(() => startQRScanner()).catch((err) => console.error(err));
+            } else {
+                startQRScanner();
+            }
+        }
+
+        // Start scanner on page load
+        window.onload = startQRScanner;
+    </script>
+</body>
+</html>
