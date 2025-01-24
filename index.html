@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Scanner</title>
+    <title>QR Code Scanner with Camera Switch</title>
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
     <style>
         body {
@@ -54,6 +54,7 @@
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
+            margin: 5px;
         }
 
         button:hover {
@@ -66,45 +67,63 @@
     <h1>QR Code Scanner</h1>
     <div id="qrScanner"></div>
     <p><strong>Scanned Text:</strong> <span id="scannedResult">None</span></p>
-    <button onclick="restartScanner()">Restart Scanner</button>
+    <button id="startCamera" onclick="startQRScanner()">Start Camera</button>
+    <button id="stopCamera" onclick="stopQRScanner()" disabled>Stop Camera</button>
 
     <script>
         let qrScanner;
 
+        // Start the QR Scanner
         function startQRScanner() {
             const scannerElement = document.getElementById("qrScanner");
+            const startButton = document.getElementById("startCamera");
+            const stopButton = document.getElementById("stopCamera");
+
+            // Initialize the QR Scanner
             qrScanner = new Html5Qrcode("qrScanner");
 
             qrScanner.start(
                 { facingMode: "environment" }, // Rear camera
                 {
-                    fps: 10, // Frames per second
+                    fps: 10,
                     qrbox: { width: 250, height: 250 }, // Scanning area size
                 },
                 (decodedText) => {
                     document.getElementById("scannedResult").textContent = decodedText;
 
-                    // Stop the scanner after successful scan
-                    qrScanner.stop().catch((err) => console.error(err));
+                    // Optional: Stop scanner after successful scan
+                    // qrScanner.stop().catch((err) => console.error(err));
                 },
                 (errorMessage) => {
                     console.warn(errorMessage);
                 }
-            ).catch((err) => {
+            ).then(() => {
+                // Update button states
+                startButton.disabled = true;
+                stopButton.disabled = false;
+            }).catch((err) => {
                 console.error("Unable to start QR scanner:", err);
+                alert("Error accessing the camera. Please check permissions.");
             });
         }
 
-        function restartScanner() {
+        // Stop the QR Scanner
+        function stopQRScanner() {
+            const startButton = document.getElementById("startCamera");
+            const stopButton = document.getElementById("stopCamera");
+
             if (qrScanner) {
-                qrScanner.stop().then(() => startQRScanner()).catch((err) => console.error(err));
-            } else {
-                startQRScanner();
+                qrScanner.stop().then(() => {
+                    // Clear the scanner UI
+                    document.getElementById("qrScanner").innerHTML = "";
+                    // Update button states
+                    startButton.disabled = false;
+                    stopButton.disabled = true;
+                }).catch((err) => {
+                    console.error("Error stopping QR scanner:", err);
+                });
             }
         }
-
-        // Start scanner on page load
-        window.onload = startQRScanner;
     </script>
 </body>
 </html>
